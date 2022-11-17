@@ -2,6 +2,20 @@ import mesa
 import matplotlib.pyplot as plt
 import numpy as np
 
+class PaletAgent(mesa.Agent):
+    """An agent with fixed initial wealth."""
+
+    def __init__(self, unique_id, model):
+        super().__init__(unique_id, model)
+        self.wealth = 3
+
+class BoxAgent(mesa.Agent):
+    """An agent with fixed initial wealth."""
+
+    def __init__(self, unique_id, model):
+        super().__init__(unique_id, model)
+        self.wealth = 2
+
 class MoneyAgent(mesa.Agent):
     """An agent with fixed initial wealth"""
 
@@ -34,9 +48,10 @@ class MoneyAgent(mesa.Agent):
 class MoneyModel(mesa.Model) :
     """A model with some number of agents."""   
 
-    def __init__(self, N, NB, width, height):
+    def __init__(self, N, NB, NP, width, height):
         self.num_agents = N
         self.num_boxes = NB
+        self.num_palets = NP
         self.grid = mesa.space.MultiGrid(width, height, True)
         self.schedule = mesa.time.RandomActivation(self)
         # Create agents
@@ -48,14 +63,22 @@ class MoneyModel(mesa.Model) :
             y = self.random.randrange(self.grid.height)
             self.grid.place_agent(a, (x, y))
         
-        # Create agents 2
+        # Create agents 2 (boxes)
         for i in range(self.num_boxes):
-            b = BoxAgent(i, self)
+            b = BoxAgent(i+self.num_agents, self)
             self.schedule.add(b)
 
             x = self.random.randrange(self.grid.width)
             y = self.random.randrange(self.grid.height)
             self.grid.place_agent(b, (x, y))
+        # Create agents 3 (palets)
+        for i in range(self.num_palets):
+            c = PaletAgent(i+self.num_agents+self.num_boxes, self)
+            self.schedule.add(c)
+
+            x = self.random.randrange(self.grid.width)
+            y = self.random.randrange(self.grid.height)
+            self.grid.place_agent(c, (x, y))
 
         
     def step(self):
